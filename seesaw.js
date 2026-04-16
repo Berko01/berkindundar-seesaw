@@ -140,3 +140,31 @@ function handlePlankClick(event) {
   state.objects.push(createDroppedObject(clickX));
   render();
 }
+
+function syncPauseButton() {
+  btnPause.textContent = state.paused ? 'Resume' : 'Pause';
+  btnPause.classList.toggle('paused', state.paused);
+}
+
+function handlePause() {
+  state.paused = !state.paused;
+  syncPauseButton();
+}
+
+function handleReset() {
+  state.objects = [];
+  state.paused  = false;
+  syncPauseButton();
+  render();
+}
+
+function init() {
+  render();
+  syncPauseButton();
+
+  plankEl.addEventListener('click', handlePlankClick);
+  btnReset.addEventListener('click', handleReset);
+  btnPause.addEventListener('click', handlePause);
+}
+
+init();
