@@ -4,20 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Seesaw Simulation</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
   <h1 class="title">Seesaw Simulation</h1>
 
+  <div class="weight-display">
+    <div class="weight-side left-weight">
+      <span class="weight-label">Left</span>
+      <span class="weight-value" id="left-total">0 kg</span>
+    </div>
+    <div class="balance-indicator" id="balance-indicator">⚖️ Balanced</div>
+    <div class="weight-side right-weight">
+      <span class="weight-label">Right</span>
+      <span class="weight-value" id="right-total">0 kg</span>
+    </div>
+  </div>
+
   <div class="scene">
     <div class="seesaw-wrapper" id="seesaw-wrapper">
-      <div class="plank" id="plank"></div>
+      <div class="plank" id="plank">
+        <div class="pivot-marker"></div>
+      </div>
     </div>
     <div class="fulcrum">
       <div class="fulcrum-triangle"></div>
       <div class="fulcrum-base"></div>
     </div>
   </div>
+
+  <div class="controls">
+    <button class="btn btn-reset" id="btn-reset">Reset</button>
+    <button class="btn btn-pause" id="btn-pause">Pause</button>
+  </div>
+
+  <p class="hint">Click anywhere on the plank to drop an object with a random weight (1–10 kg)</p>
 
   <script src="seesaw.js"></script>
 </body>

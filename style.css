@@ -24,6 +24,53 @@ body {
   color: #2d3748;
 }
 
+.weight-display {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  background: #ffffff;
+  border: 1px solid #dde1e9;
+  border-radius: 12px;
+  padding: 12px 28px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.weight-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 72px;
+}
+
+.weight-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #718096;
+}
+
+.weight-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #4a5568;
+  transition: color 0.3s;
+}
+
+.left-weight .weight-value  { color: #d97706; }
+.right-weight .weight-value { color: #059669; }
+
+.balance-indicator {
+  font-size: 0.85rem;
+  color: #718096;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.balance-indicator.tilted-left  { color: #d97706; }
+.balance-indicator.tilted-right { color: #059669; }
+.balance-indicator.balanced     { color: #3b82f6; }
+
 .scene {
   position: relative;
   width: 520px;
@@ -135,4 +182,54 @@ body {
     opacity: 1;
     transform: translateX(-50%) translateY(0) scale(1);
   }
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.btn:hover  { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+.btn-reset {
+  background: linear-gradient(135deg, #f43f5e, #be123c);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.35);
+}
+
+.btn-pause {
+  background: linear-gradient(135deg, #f59e0b, #b45309);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.btn-pause.paused {
+  background: linear-gradient(135deg, #10b981, #065f46);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: #9aa3b0;
+  text-align: center;
+  max-width: 400px;
+}
+
+@media (max-width: 560px) {
+  .scene          { width: 340px; }
+  .seesaw-wrapper { width: 300px; }
+  .plank          { width: 300px; }
+  .weight-display { gap: 16px; padding: 10px 16px; }
+  .title          { font-size: 1.4rem; }
 }
