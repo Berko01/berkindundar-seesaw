@@ -69,3 +69,50 @@ function getBalanceStatus(angle) {
   }
   return   { text: 'Tilted right ▶', className: 'balance-indicator tilted-right' };
 }
+
+function createObjectEl(obj) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'seesaw-object';
+  wrapper.dataset.id = String(obj.id);
+
+  const size  = 24 + (obj.weight - 1) * 2.2;
+  const color = WEIGHT_COLORS[obj.weight - 1];
+
+  const circle = document.createElement('div');
+  circle.className = 'object-circle';
+  circle.style.width      = `${size}px`;
+  circle.style.height     = `${size}px`;
+  circle.style.background = color;
+  circle.style.boxShadow  = `0 3px 10px ${color}88`;
+  circle.textContent      = obj.weight;
+
+  const label = document.createElement('div');
+  label.className   = 'object-label';
+  label.textContent = `${obj.weight} kg`;
+
+  wrapper.appendChild(circle);
+  wrapper.appendChild(label);
+  wrapper.style.left = `${obj.x}px`;
+
+  return wrapper;
+}
+
+function drawObjects() {
+  plankEl.querySelectorAll('.seesaw-object').forEach((el) => el.remove());
+  for (const obj of state.objects) {
+    plankEl.appendChild(createObjectEl(obj));
+  }
+}
+
+function render() {
+  const { leftWeight, rightWeight, angle } = calcPhysics(state.objects);
+  const balance = getBalanceStatus(angle);
+
+  seesawWrapper.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+  leftTotalEl.textContent  = `${leftWeight} kg`;
+  rightTotalEl.textContent = `${rightWeight} kg`;
+  balanceEl.textContent    = balance.text;
+  balanceEl.className      = balance.className;
+
+  drawObjects();
+}
