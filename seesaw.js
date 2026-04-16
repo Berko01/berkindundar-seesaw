@@ -139,6 +139,37 @@ function handlePlankClick(event) {
 
   state.objects.push(createDroppedObject(clickX));
   render();
+  saveState();
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.objects));
+  } catch (_) {}
+}
+
+function isValidObject(obj) {
+  return (
+    typeof obj.id       === 'number' &&
+    typeof obj.weight   === 'number' && obj.weight >= 1 && obj.weight <= 10 &&
+    typeof obj.x        === 'number' &&
+    typeof obj.distance === 'number' &&
+    (obj.side === 'left' || obj.side === 'right')
+  );
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.every(isValidObject)) {
+      state.objects = parsed;
+    }
+  } catch (_) {
+    state.objects = [];
+  }
 }
 
 function syncPauseButton() {
@@ -156,9 +187,11 @@ function handleReset() {
   state.paused  = false;
   syncPauseButton();
   render();
+  saveState();
 }
 
 function init() {
+  loadState();
   render();
   syncPauseButton();
 
