@@ -116,3 +116,27 @@ function render() {
 
   drawObjects();
 }
+
+function createDroppedObject(clickX) {
+  const pivotX = PLANK_WIDTH / 2;
+
+  return {
+    id:       Date.now(),
+    weight:   getRandomWeight(),
+    x:        clickX,
+    side:     clickX < pivotX ? 'left' : 'right',
+    distance: Math.abs(clickX - pivotX),
+  };
+}
+
+function handlePlankClick(event) {
+  if (state.paused) return;
+
+  const rect   = plankEl.getBoundingClientRect();
+  const clickX = event.clientX - rect.left;
+
+  if (clickX < 0 || clickX > PLANK_WIDTH) return;
+
+  state.objects.push(createDroppedObject(clickX));
+  render();
+}
