@@ -1,9 +1,10 @@
 'use strict';
 
 const PLANK_WIDTH = 400;
+const PIVOT_X = PLANK_WIDTH / 2;
 const MAX_ANGLE = 30;
 const TORQUE_DIVISOR = 10;
-const STORAGE_KEY = 'seesaw_state';
+const STORAGE_KEY = 'page_state';
 
 const WEIGHT_COLORS = [
   '#e07b7b',
@@ -31,7 +32,7 @@ const balanceEl      = document.getElementById('balance-indicator');
 const btnReset       = document.getElementById('btn-reset');
 const btnPause       = document.getElementById('btn-pause');
 
-function clampAngle(angle) {
+function limitAngle(angle) {
   return Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, angle));
 }
 
@@ -47,15 +48,15 @@ function calcPhysics(objects) {
 
   for (const obj of objects) {
     if (obj.side === 'left') {
-      leftTorque  += obj.weight * obj.distance;
+      leftTorque  += obj.weight * obj.distanceFromPivot;
       leftWeight  += obj.weight;
     } else {
-      rightTorque += obj.weight * obj.distance;
+      rightTorque += obj.weight * obj.distanceFromPivot;
       rightWeight += obj.weight;
     }
   }
 
-  const angle = clampAngle((rightTorque - leftTorque) / TORQUE_DIVISOR);
+  const angle = limitAngle((rightTorque - leftTorque) / TORQUE_DIVISOR);
 
   return { leftTorque, rightTorque, leftWeight, rightWeight, angle };
 }
@@ -92,7 +93,7 @@ function createObjectEl(obj) {
 
   wrapper.appendChild(circle);
   wrapper.appendChild(label);
-  wrapper.style.left = `${obj.x}px`;
+  wrapper.style.left = `${obj.plankX}px`;
 
   return wrapper;
 }
@@ -117,75 +118,57 @@ function render() {
   drawObjects();
 }
 
-function createDroppedObject(clickX) {
-  const pivotX = PLANK_WIDTH / 2;
-
+function createObjectFromClick(clickedPlankPosition) {
   return {
-    id:       Date.now(),
-    weight:   getRandomWeight(),
-    x:        clickX,
-    side:     clickX < pivotX ? 'left' : 'right',
-    distance: Math.abs(clickX - pivotX),
+    id:                Date.now(),
+    weight:            getRandomWeight(),
+    plankX:            clickedPlankPosition,
+    side:              clickedPlankPosition < PIVOT_X ? 'left' : 'right',
+    distanceFromPivot: Math.abs(clickedPlankPosition - PIVOT_X),
   };
 }
 
 function handlePlankClick(event) {
   if (state.paused) return;
 
-  const rect   = plankEl.getBoundingClientRect();
-  const clickX = event.clientX - rect.left;
+  const rect                = plankEl.getBoundingClientRect();
+  const clickedPlankPosition = event.clientX - rect.left;
 
-  if (clickX < 0 || clickX > PLANK_WIDTH) return;
+  if (clickedPlankPosition < 0 || clickedPlankPosition > PLANK_WIDTH) return;
 
-  state.objects.push(createDroppedObject(clickX));
+  state.objects.push(createObjectFromClick(clickedPlankPosition));
   render();
   saveState();
 }
 
 function saveState() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.objects));
-  } catch (_) {}
-}
-
-function isValidObject(obj) {
-  return (
-    typeof obj.id       === 'number' &&
-    typeof obj.weight   === 'number' && obj.weight >= 1 && obj.weight <= 10 &&
-    typeof obj.x        === 'number' &&
-    typeof obj.distance === 'number' &&
-    (obj.side === 'left' || obj.side === 'right')
-  );
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.objects));
 }
 
 function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
 
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.every(isValidObject)) {
-      state.objects = parsed;
-    }
-  } catch (_) {
-    state.objects = [];
+  const parsed = JSON.parse(raw);
+  if (Array.isArray(parsed)) {
+    state.objects = parsed;
   }
 }
 
-function syncPauseButton() {
+function updatePauseButton() {
   btnPause.textContent = state.paused ? 'Resume' : 'Pause';
   btnPause.classList.toggle('paused', state.paused);
 }
 
 function handlePause() {
   state.paused = !state.paused;
-  syncPauseButton();
+  updatePauseButton();
 }
 
 function handleReset() {
   state.objects = [];
   state.paused  = false;
-  syncPauseButton();
+  updatePauseButton();
   render();
   saveState();
 }
@@ -193,7 +176,7 @@ function handleReset() {
 function init() {
   loadState();
   render();
-  syncPauseButton();
+  updatePauseButton();
 
   plankEl.addEventListener('click', handlePlankClick);
   btnReset.addEventListener('click', handleReset);
